@@ -3,16 +3,18 @@ import random
 
 import numpy as np
 import pandas as pd
+from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
 
+import transformers
 from transformers import AutoTokenizer, AutoModel
 
 from config import DEVICE,CLASS_2_IDX, IDX_2_CLASS,MODEL_NAME, OUTPUT_MODEL,BATCH_SIZE, \
-TRAIN_FILE, MAXLEN
+TRAIN_FILE, MAXLEN, TEST_FILE
 
 
 class CustomDataset(Dataset):
@@ -50,8 +52,6 @@ class CustomDataset(Dataset):
         else:
             return token_ids, attention_mask, token_type_ids
 
-
-
 def process_data(filename, class_2_idx, with_labels=True):
     data = pd.read_csv(filename, encoding="utf-8")
     if with_labels:
@@ -61,29 +61,19 @@ def process_data(filename, class_2_idx, with_labels=True):
 
 def main():
     all_data = process_data(filename=TRAIN_FILE, class_2_idx=CLASS_2_IDX, with_labels=True)
+    print(all_data.shape)
 
 
 all_data = process_data(filename=TRAIN_FILE, class_2_idx=CLASS_2_IDX, with_labels=True)
-train_df, val_df = train_test_split(all_data, test_size=0.2, shuffle=True, random_state=1)
+data = CustomDataset(all_data, maxlen=MAXLEN, with_labels=True, model_name=MODEL_NAME)
 
-train_data = CustomDataset(train_df, maxlen=MAXLEN,with_labels=True, model_name=MODEL_NAME)
-train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
-
-val_data = CustomDataset(val_df, maxlen=MAXLEN,with_labels=True, model_name=MODEL_NAME)
-val_loader = DataLoader(val_data, batch_size=BATCH_SIZE)
-
-
-sample = next(iter(train_loader))
-token_ids, attention_mask, token_type_ids, labels = [t for t in sample]
+train_df, val_df = train_test_split(data, test_size=0.2, shuffle=True, random_state=1)
+# train_data = CustomDataset(train_df, maxlen=MAXLEN,with_labels=True, model_name=MODEL_NAME)
+train_loader = DataLoader(train_df, batch_size=BATCH_SIZE, shuffle=True)
+# val_data = CustomDataset(val_df, maxlen=MAXLEN,with_labels=True, model_name=MODEL_NAME)
+val_loader = DataLoader(val_df, batch_size=BATCH_SIZE)
 
 
-
-# if __name__ == '__main__':
-#     main()
-
-
-
-
-
-# sample = next(iter(train_data))
-
+test_df = process_data(filename=TEST_FILE, class_2_idx=CLASS_2_IDX, with_labels=False)
+test_data = CustomDataset(test_df, maxlen=MAXLEN, with_labels=False, model_name=MODEL_NAME)
+test_loader = DataLoader(test_data, batch_size=BATCH_SIZE)

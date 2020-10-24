@@ -42,6 +42,11 @@ def train_eval(model, criteon, optimizer, train_loader, val_loader, epochs):
             if i % 10 == 0:
                 eval(model, optimizer, val_loader)
 
+        torch.save({
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict()
+        }, os.path.abspath(os.path.join(os.path.dirname(__file__), OUTPUT_MODEL, "%d.pt" % epoch) ))
+
 def eval(model, optimizer, val_loader):
     model.eval()
 
@@ -55,7 +60,9 @@ def eval(model, optimizer, val_loader):
             label_id = labels.cpu().numpy()           # [batch ]
 
             all_item += len(logits)
-            correct_item += np.sum(np.argmax(logits, axis=-1).flatten() == label_id.flatten())
+            correct_item += np.sum(np.argmax(logit, axis=-1).flatten() == label_id.flatten())
+
+
     acc = correct_item/all_item
 
     print("$$$$$$$$$$   Val-Acc: %s  $$$$$$$$$$$" % acc)
@@ -65,14 +72,14 @@ def eval(model, optimizer, val_loader):
         torch.save({
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict()
-        }, OUTPUT_MODEL)
+        }, os.path.abspath(os.path.join(os.path.dirname(__file__), OUTPUT_MODEL, "best.pt")))
 
         print("the best model save in %s" % OUTPUT_MODEL)
 
 
-model = MyModel(isFreeze=False, model_name=MODEL_NAME, hidden_size=768, num_classes=NUM_CLASSES)
+model = MyModel(isFreeze=False, model_name=MODEL_NAME, hidden_size=768, num_classes=NUM_CLASSES).to(DEVICE)
 
-criteon = nn.CrossEntropyLoss()
+criteon = nn.CrossEntropyLoss().to(DEVICE)
 optimizer = AdamW(model.parameters(), lr=1e-5, weight_decay=1e-2)
 
 train_eval(model, criteon, optimizer, train_loader, val_loader, EPOCH)

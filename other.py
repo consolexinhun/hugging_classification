@@ -216,7 +216,7 @@ def test(model, dataloader, with_labels=False):
 if __name__ == '__main__':
     set_seed(1)  # Set all seeds to make results reproducible
 
-    data_df = process_data('labeled_data.csv', classes2idx, True)
+    data_df = process_data('datasets/labeled_data.csv', classes2idx, True)
 
     train_df, val_df = train_test_split(data_df, test_size=0.2, shuffle=True, random_state=1)
 
@@ -234,9 +234,9 @@ if __name__ == '__main__':
 
     train_eval(model, criterion, optimizer, train_loader, val_loader, epochs=10)
 
-    print("Reading test data...")
-    test_df = process_data('test_data.csv', classes2idx, False)
-    test_set = CustomDataset(test_df, maxlen=192, with_labels=False, model_name=model_name)
-    val_loader = Data.DataLoader(test_set, batch_size=batch_size, num_workers=5, shuffle=False)
-
-    test(model, val_loader, with_labels=False)
+    # print("Reading test data...")
+    # test_df = process_data('test_data.csv', classes2idx, False)
+    # test_set = CustomDataset(test_df, maxlen=192, with_labels=False, model_name=model_name)
+    # val_loader = Data.DataLoader(test_set, batch_size=batch_size, num_workers=5, shuffle=False)
+    #
+    # test(model, val_loader, with_labels=False)

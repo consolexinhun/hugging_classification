@@ -16,10 +16,10 @@ MODEL_NAME = "hfl/chinese-xlnet-base"
 # 句子中最多多少个单词
 MAXLEN = 192
 # 保存模型的路径
-OUTPUT_MODEL = os.path.abspath(os.path.join(os.path.dirname(__file__), "output_model"))
+OUTPUT_MODEL = "output_model"
 
 # 训练参数配置
-BATCH_SIZE = 2
+BATCH_SIZE = 32
 EPOCH = 2
 # 训练测试文件
 TRAIN_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "datasets", "labeled_data.csv"))

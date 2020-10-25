@@ -58,19 +58,45 @@ def process_data(filename, class_2_idx, with_labels=True):
         data = data.replace({"class_label": class_2_idx})
     return data
 
+def expand():
+    labels, contents = [], []
+    with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "datasets", "cnews.train.txt")), "r", encoding="utf-8") as f:
+        for line in f:
+            label, content = line.split("\t")
+            labels.append(label)
+            contents.append(content)
 
-def main():
-    all_data = process_data(filename=TRAIN_FILE, class_2_idx=CLASS_2_IDX, with_labels=True)
-    print(all_data.shape)
+    with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "datasets", "cnews.test.txt")), "r", encoding="utf-8") as f:
+        for line in f:
+            label, content = line.split("\t")
+            labels.append(label)
+            contents.append(content)
+
+    with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "datasets", "cnews.val.txt")), "r", encoding="utf-8") as f:
+        for line in f:
+            label, content = line.split("\t")
+            labels.append(label)
+            contents.append(content)
+
+    data_dict = {
+        "id": list(range(len(labels))),
+        "class_label": [CLASS_2_IDX[c] for c in labels],
+        "content": contents
+    }
+    expand_data = pd.DataFrame(data_dict)
+    expand_data = expand_data[["id", "class_label", "content"]] # 调整列的顺序，没有什么实质作用
+    return expand_data
 
 
-all_data = process_data(filename=TRAIN_FILE, class_2_idx=CLASS_2_IDX, with_labels=True)
+origin_data = process_data(filename=TRAIN_FILE, class_2_idx=CLASS_2_IDX, with_labels=True)
+expand_data = expand()
+
+all_data = pd.concat((origin_data, expand_data), axis=0, ignore_index=True) # 忽视之前的索引，也就是重建索引
+
 data = CustomDataset(all_data, maxlen=MAXLEN, with_labels=True, model_name=MODEL_NAME)
 
 train_df, val_df = train_test_split(data, test_size=0.2, shuffle=True, random_state=1)
-# train_data = CustomDataset(train_df, maxlen=MAXLEN,with_labels=True, model_name=MODEL_NAME)
 train_loader = DataLoader(train_df, batch_size=BATCH_SIZE, shuffle=True)
-# val_data = CustomDataset(val_df, maxlen=MAXLEN,with_labels=True, model_name=MODEL_NAME)
 val_loader = DataLoader(val_df, batch_size=BATCH_SIZE)
 
 

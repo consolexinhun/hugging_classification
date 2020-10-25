@@ -3,20 +3,17 @@ import random
 
 import numpy as np
 import pandas as pd
-from sklearn.utils import shuffle
-from sklearn.model_selection import train_test_split
 
 import torch
-from torch import nn
-from torch.utils.data import Dataset, DataLoader
 
-import transformers
-from transformers import AutoTokenizer, AutoModel
 
 from config import DEVICE,CLASS_2_IDX, IDX_2_CLASS,MODEL_NAME, OUTPUT_MODEL,BATCH_SIZE, \
 TRAIN_FILE, MAXLEN, NUM_CLASSES, EPOCH, DEVICE
 from dataprocess import test_loader
 from model import MyModel, AdamW
+
+import logging
+logging.basicConfig(level=logging.INFO)
 
 def test(model, test_loader, with_label):
     ckpt = torch.load(os.path.abspath(os.path.join(os.path.dirname(__file__), OUTPUT_MODEL, "best.pt")))
@@ -50,6 +47,8 @@ def to_csv(predicts):
         writer = csv.writer(f)
         writer.writerow(["id","class_label","rank_label"])
         writer.writerows(zip(ids, class_labels, rank_labels))
+
+logging.info("数据集加载完成，测试集数量：{}".format(len(test_loader.dataset)))
 
 model = MyModel(isFreeze=False, model_name=MODEL_NAME, hidden_size=768, num_classes=NUM_CLASSES).to(DEVICE)
 predicts = test(model, test_loader, with_label=False)

@@ -18,6 +18,9 @@ TRAIN_FILE, MAXLEN, NUM_CLASSES, EPOCH, DEVICE
 from dataprocess import train_loader, val_loader
 from model import MyModel, AdamW
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 best_acc = 0
 
 
@@ -39,7 +42,7 @@ def train_eval(model, criteon, optimizer, train_loader, val_loader, epochs):
             loss.backward()
             optimizer.step()
 
-            if i % 10 == 0:
+            if i % 100 == 0:
                 eval(model, optimizer, val_loader)
 
         torch.save({
@@ -75,6 +78,8 @@ def eval(model, optimizer, val_loader):
         }, os.path.abspath(os.path.join(os.path.dirname(__file__), OUTPUT_MODEL, "best.pt")))
 
         print("the best model save in %s" % OUTPUT_MODEL)
+
+logging.info("数据集加载完成，训练集数量：{}， 验证集数量：{}".format(len(train_loader.dataset), len(val_loader.dataset)))
 
 
 model = MyModel(isFreeze=False, model_name=MODEL_NAME, hidden_size=768, num_classes=NUM_CLASSES).to(DEVICE)

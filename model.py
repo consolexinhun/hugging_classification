@@ -4,7 +4,7 @@ from torch import nn
 from transformers import AutoTokenizer, AdamW, AutoModel
 
 class MyModel(nn.Module):
-    def __init__(self, isFreeze, model_name, hidden_size=768, num_classes=2):
+    def __init__(self, isFreeze, model_name, hidden_size, num_classes):
         '''
         :param isFreeze: 是否冻结预训练模型的参数
         :param model_name: 模型名字

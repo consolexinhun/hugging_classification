@@ -42,7 +42,7 @@ def train_eval(model, criteon, optimizer, train_loader, val_loader, epochs):
             loss.backward()
             optimizer.step()
 
-            if i % 100 == 0:
+            if i % 500 == 0:
                 eval(model, optimizer, val_loader)
 
         torch.save({
@@ -77,7 +77,10 @@ def eval(model, optimizer, val_loader):
             "optimizer_state_dict": optimizer.state_dict()
         }, os.path.abspath(os.path.join(os.path.dirname(__file__), OUTPUT_MODEL, "best.pt")))
 
-        print("the best model save in %s" % OUTPUT_MODEL)
+        print("the best model save in %s" % os.path.abspath(os.path.join(os.path.dirname(__file__), OUTPUT_MODEL)))
+
+if not os.path.exists(os.path.abspath(os.path.join(os.path.dirname(__file__), OUTPUT_MODEL))):
+    os.makedirs(os.path.abspath(os.path.join(os.path.dirname(__file__), OUTPUT_MODEL)))
 
 logging.info("数据集加载完成，训练集数量：{}， 验证集数量：{}".format(len(train_loader.dataset), len(val_loader.dataset)))
 

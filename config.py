@@ -12,7 +12,7 @@ IDX_2_CLASS = {0:'财经', 1:'房产', 2:'家居', 3:'教育', 4:'科技', 5:'�
 NUM_CLASSES = len(CLASS_2_IDX)
 
 # 预训练模型名字
-MODEL_NAME = "hfl/chinese-xlnet-base"
+MODEL_NAME = "hfl/chinese-roberta-wwm-ext"
 # 句子中最多多少个单词
 MAXLEN = 192
 # 保存模型的路径

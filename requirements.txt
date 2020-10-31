@@ -1,3 +1,5 @@
-pytorch
+torch
 transformers
 scikit-learn
+numpy
+pandas

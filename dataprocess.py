@@ -1,17 +1,11 @@
 import os, sys
-import random
 
-import numpy as np
 import pandas as pd
-from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 
-import torch
-from torch import nn
 from torch.utils.data import Dataset, DataLoader
 
-import transformers
-from transformers import AutoTokenizer, AutoModel
+from transformers import BertTokenizer
 
 from config import DEVICE,CLASS_2_IDX, IDX_2_CLASS,MODEL_NAME, OUTPUT_MODEL,BATCH_SIZE, \
 TRAIN_FILE, MAXLEN, TEST_FILE
@@ -26,7 +20,7 @@ class CustomDataset(Dataset):
         :param model_name: 模型名字
         '''
         self.data = data
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.tokenizer = BertTokenizer.from_pretrained(model_name)
         self.maxlen = maxlen
         self.with_labels = with_labels
 

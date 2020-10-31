@@ -1,28 +1,18 @@
 import os, sys
-import random
-
 import numpy as np
-import pandas as pd
-from sklearn.utils import shuffle
-from sklearn.model_selection import train_test_split
-
 import torch
 from torch import nn
-from torch.utils.data import Dataset, DataLoader
-
-import transformers
-from transformers import AutoTokenizer, AutoModel
 
 from config import DEVICE,CLASS_2_IDX, IDX_2_CLASS,MODEL_NAME, OUTPUT_MODEL,BATCH_SIZE, \
 TRAIN_FILE, MAXLEN, NUM_CLASSES, EPOCH, DEVICE
 from dataprocess import train_loader, val_loader
-from model import MyModel, AdamW
+from model import MyModel
+from transformers import AdamW
 
 import logging
 logging.basicConfig(level=logging.INFO)
 
 best_acc = 0
-
 
 def train_eval(model, criteon, optimizer, train_loader, val_loader, epochs):
     print("-----------------start traing-------------------")
@@ -36,7 +26,8 @@ def train_eval(model, criteon, optimizer, train_loader, val_loader, epochs):
             logits = model(token_ids, attention_mask, token_type_ids)
 
             loss = criteon(logits, labels)
-            print("*******  i:%s  **********" % loss.item())
+            if i % 100 == 0:
+                print("*******  i:%s/%s loss:%s  **********" % (i, len(train_loader.dataset)/BATCH_SIZE,loss.item()))
 
             optimizer.zero_grad()
             loss.backward()
@@ -59,16 +50,14 @@ def eval(model, optimizer, val_loader):
         token_ids, attention_mask, token_type_ids, labels = tuple(t.to(DEVICE) for t in batch)
         with torch.no_grad():
             logits = model(token_ids, attention_mask, token_type_ids)
-            logit = logits.detach().cpu().numpy()    # [batch, num_classes]
+            logit = logits.cpu().numpy()    # [batch, num_classes]
             label_id = labels.cpu().numpy()           # [batch ]
 
             all_item += len(logits)
             correct_item += np.sum(np.argmax(logit, axis=-1).flatten() == label_id.flatten())
-
-
     acc = correct_item/all_item
 
-    print("$$$$$$$$$$   Val-Acc: %s  $$$$$$$$$$$" % acc)
+    print("@@@@@@@@@@@   Val-Acc: %s  @@@@@@@@@@" % acc)
     global best_acc
     if acc > best_acc:
         best_acc = acc

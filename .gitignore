@@ -1,7 +1,7 @@
 datasets
 .code
 .idea
-hfl/chinese-xlnet-base
+hfl
 output.csv
 output_model
 __pycache__

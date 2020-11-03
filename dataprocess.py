@@ -1,11 +1,10 @@
-import os, sys
-
+import os, sys, re
 import pandas as pd
-from sklearn.model_selection import train_test_split
 
 from torch.utils.data import Dataset, DataLoader
+from sklearn.model_selection import train_test_split
 
-from transformers import BertTokenizer
+from transformers import AutoTokenizer
 
 from config import DEVICE,CLASS_2_IDX, IDX_2_CLASS,MODEL_NAME, OUTPUT_MODEL,BATCH_SIZE, \
 TRAIN_FILE, MAXLEN, TEST_FILE
@@ -20,7 +19,7 @@ class CustomDataset(Dataset):
         :param model_name: 模型名字
         '''
         self.data = data
-        self.tokenizer = BertTokenizer.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.maxlen = maxlen
         self.with_labels = with_labels
 
@@ -50,6 +49,8 @@ def process_data(filename, class_2_idx, with_labels=True):
     data = pd.read_csv(filename, encoding="utf-8")
     if with_labels:
         data = data.replace({"class_label": class_2_idx})
+
+    data.content = data["content"].apply(lambda x: re.sub(r'[^\u4e00-\u9fa5]+', "", x))
     return data
 
 def expand():
@@ -76,6 +77,7 @@ def expand():
         "id": list(range(len(labels))),
         "class_label": [CLASS_2_IDX[c] for c in labels],
         "content": contents
+        # "content": [re.sub(r'[^\u4e00-\u9fa5]+', "", content) for content in contents]
     }
     expand_data = pd.DataFrame(data_dict)
     expand_data = expand_data[["id", "class_label", "content"]] # 调整列的顺序，没有什么实质作用
@@ -89,7 +91,7 @@ all_data = pd.concat((origin_data, expand_data), axis=0, ignore_index=True) # �
 
 data = CustomDataset(all_data, maxlen=MAXLEN, with_labels=True, model_name=MODEL_NAME)
 
-train_df, val_df = train_test_split(data, test_size=0.2, shuffle=True, random_state=1)
+train_df, val_df = train_test_split(data, test_size=0.3, shuffle=True, random_state=1)
 train_loader = DataLoader(train_df, batch_size=BATCH_SIZE, shuffle=True)
 val_loader = DataLoader(val_df, batch_size=BATCH_SIZE)
 

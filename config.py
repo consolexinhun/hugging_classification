@@ -13,17 +13,16 @@ IDX_2_CLASS = {0:'财经', 1:'房产', 2:'家居', 3:'教育', 4:'科技', 5:'�
 NUM_CLASSES = len(CLASS_2_IDX)
 
 # 预训练模型名字
-# MODEL_NAME = "hfl/chinese-roberta-wwm-ext"
-MODEL_NAME = "hfl/chinese-roberta-wwm-ext"
+MODEL_NAME = "hfl/chinese-xlnet-base"
 
 # 句子中最多多少个单词
-MAXLEN = 200
+MAXLEN = 192
 # 保存模型的路径
-OUTPUT_MODEL = "output_model"
-OUTPUT_CSV = datetime.datetime.now().strftime("%Y-%m-%d:%H-%M-%S")+"_output.csv"
+OUTPUT_MODEL = "output_model"+"__"+MODEL_NAME
+OUTPUT_CSV = "xlnet_"+datetime.datetime.now().strftime("%Y-%m-%d__%H-%M-%S")+"_output.csv"
 
 # 训练参数配置
-BATCH_SIZE = 16
+BATCH_SIZE = 32
 EPOCH = 2
 # 训练测试文件
 TRAIN_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "datasets", "labeled_data.csv"))

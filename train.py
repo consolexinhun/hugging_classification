@@ -26,14 +26,14 @@ def train_eval(model, criteon, optimizer, train_loader, val_loader, epochs):
             logits = model(token_ids, attention_mask, token_type_ids)
 
             loss = criteon(logits, labels)
-            if i % 100 == 0:
+            if i % (len(train_loader.dataset)/BATCH_SIZE/100) == 0:
                 print("*******  i:%s/%s loss:%s  **********" % (i, len(train_loader.dataset)/BATCH_SIZE,loss.item()))
 
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
-            if i % 500 == 0:
+            if i % (len(train_loader.dataset)/BATCH_SIZE/5) == 0:
                 eval(model, optimizer, val_loader)
 
         torch.save({
